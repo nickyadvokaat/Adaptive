@@ -1,0 +1,169 @@
+<?php
+require ("config.php");
+
+if (empty($_SESSION['user'])) {
+	header("Location: index.php");
+	die("Redirecting to index.php");
+}
+
+// Connect to the db
+
+include 'php/db.php';
+
+$content_title = "404";
+$content_text = "not found";
+$page = htmlspecialchars($_GET["page"]);
+
+if ($page == "") {
+	$content_title = "Welcome";
+	$content_text = "Bla";
+}
+else
+if (is_numeric($page)) {
+	$course = getCourse($page);
+	$content_title = $course['name'];
+	$content_text = $course['descr_short'];
+	$content_text_long = $course['descr_long'];
+}
+
+$content_courses = "";
+$courses = getCourses();
+
+foreach($courses as $course) {
+	$course_id = $course['id'];
+	$course_name = $course['name'];
+	$active = "";
+	if ($course_id == $page) {
+		$active = "active";
+	}
+
+	$content_courses.= '<a href="http://www.internetusage.nl/adaptive/content.php?page=' . $course_id . '" class="list-group-item ' . $active . '">' . ucwords($course_name) . '<span class="badge">25</span></a>';
+}
+
+$username = $_SESSION['user']['username'];
+if(userIsAdmin($username)){
+	$adminButton =  "<li class='dropdown'>
+		<a class='dropdown-toggle' data-toggle='dropdown' href='#'>Admin Tools<span class='caret'></span></a>
+		<ul class='dropdown-menu' role='menu'>
+		<li><a href='../adaptive/admin_add_course.php'>Add a course</a></li>
+		<li><a href='../adaptive/admin_add_pre.php'>Add a prerequisite</a></li>
+		</ul>
+		</li>";
+}
+
+mysql_close($link);
+?>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>AWS</title>
+	
+	<!-- Bootstrap core CSS -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="css/navbar.css" rel="stylesheet">
+	
+	
+	  </head>
+  <body>
+
+    <div class="container">
+
+      <!-- Static navbar -->
+      <div class="navbar navbar-default" role="navigation">
+        <div class="container-fluid">
+          <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse">
+              <span class="sr-only">Toggle navigation</span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
+          <a class="navbar-brand" href="../adaptive/content.php">AWS</a>
+        </div>
+        <div class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li class="active"><a href="../adaptive/content.php">Home</a></li>
+            <li><a href="#about">About</a></li>
+            <li><a href="#contact">Contact</a></li>
+          </ul>
+          <ul class="nav navbar-nav navbar-right">
+		    <?php echo $adminButton; ?>
+            <li><a href="logout.php">Logout <?php
+echo $_SESSION['user']['username']; ?></a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
+        </div><!--/.container-fluid -->
+      </div>
+
+	
+    <div class="jumbotron">
+		<div class="row">
+			<div class="col-md-4">
+			  <div class="list-group">
+				<?php
+echo $content_courses;
+?>
+			  </div>
+			</div>
+        <div class="col-md-8">
+		<h1> 
+		<?php
+echo ucwords($content_title);
+?> 
+		</h1>
+		<p> 
+		<?php
+echo $content_text;
+?> 
+				</p>
+				
+	<div class="panel-group" id="accordion">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title">
+                    <a id="collapse-text" data-toggle="collapse" data-parent="#accordion" href="#collapseOne">Show more</a>
+                </h4>
+            </div>
+            <div id="collapseOne" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <p><?php
+echo $content_text_long; ?></p>
+                </div>
+            </div>
+        </div>       
+    </div>
+	
+	        <button type="button" class="btn btn-info">Add course</button>
+		
+		</div>
+      </div>
+    </div> <!-- /container -->
+
+	<div class="progress">
+        <div class="progress-bar" style="width: 35%"><span class="sr-only">35% Complete (success)</span></div>
+        <div class="progress-bar progress-bar-info" style="width: 20%"><span class="sr-only">20% Complete (warning)</span></div>
+      </div>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+
+	<script type="text/javascript">
+	$(document).ready(function(){
+		$('#collapseOne').on('hidden.bs.collapse', function(){
+			$('#collapse-text').text('Show more');
+		});
+		$('#collapseOne').on('shown.bs.collapse', function(){
+			$('#collapse-text').text('Show less');
+		});
+	});
+	</script>
+  </body>
+</html>
