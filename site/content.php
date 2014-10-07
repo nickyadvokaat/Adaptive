@@ -145,8 +145,8 @@ echo $content_text_long; ?></p>
     </div> <!-- /container -->
 
 	<div class="progress">
-        <div class="progress-bar" style="width: 35%"><span class="sr-only">35% Complete (success)</span></div>
-        <div class="progress-bar progress-bar-info" style="width: 20%"><span class="sr-only">20% Complete (warning)</span></div>
+        <div class="progress-bar" style="width: 35%">Completed Courses</div>
+        <div class="progress-bar progress-bar-info" style="width: 20%">Selected Courses</div>
       </div>
 
     <!-- Bootstrap core JavaScript

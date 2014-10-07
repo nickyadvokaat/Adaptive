@@ -16,7 +16,7 @@
 	}
 	
 	function getCourses(){
-		$query = "SELECT * FROM course";
+		$query = "SELECT * FROM course ORDER BY name";
 		$result = mysql_query($query) or die("Failed" . mysql_error());
 		
 		$courses = array();
@@ -78,5 +78,43 @@
 			}
 		
 		return $pres;
+	}
+	
+	function addCompletedCourses($userID, $courseIDs){
+		$query = "
+				INSERT IGNORE INTO completed
+				(user_id, course_id)
+				VALUES";
+		$i = 0;
+		foreach($courseIDs as $courseID) {
+			if($i != 0){
+				$query .= ",";
+			}
+			$i++;
+			$query .= "(" . $userID . "," . $courseID . ")";
+		}
+		$query .= ";";	
+
+		$result = mysql_query($query);	
+		if($result){
+			return visitedPage($userID);
+		}
+		return false;
+		
+	}
+	
+	function visitedPage($userID){
+		$query = "
+				UPDATE users
+				SET first_visit=0
+				WHERE id='$userID'";			
+
+		$result = mysql_query($query);	
+		
+		if($result){
+			return true;
+		}
+		
+		return false;
 	}
 ?>
