@@ -118,6 +118,32 @@
 		return false;
 	}
 	
+	function isFirstVisit($userID){
+		$query = "
+				SELECT first_visit
+				FROM users				
+				WHERE id='$userID'";			
+
+		$result = mysql_query($query);	
+		
+		
+		$row = mysql_fetch_array($result);
+		
+		return $row['first_visit'] == 1;		
+	}
+	
+	function addCourseToPlanned($userID, $courseID){
+		$query = "
+					INSERT IGNORE INTO planned (user_id, course_id)
+					VALUES ('$userID', '$courseID')";
+
+		$result = mysql_query($query);	
+		if($result){
+			return true;
+		}
+		return false;
+	}
+	
 	/* New 	*/
 	function markVisited($userID, $courseID){
 		$query = "

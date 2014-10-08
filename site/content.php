@@ -10,6 +10,13 @@ if (empty($_SESSION['user'])) {
 
 include 'php/db.php';
 
+$user_id = $_SESSION['user']['id'];
+
+if(isFirstVisit($user_id)){
+	header("Location: select_courses.php");
+	die("Redirecting to select_courses.php");
+}
+
 $content_title = "404";
 $content_text = "not found";
 $page = htmlspecialchars($_GET["page"]);
@@ -138,7 +145,7 @@ echo $content_text_long; ?></p>
         </div>       
     </div>
 	
-	        <button type="button" class="btn btn-info">Add course</button>
+	        <button id="addButton" type="button" class="btn btn-info">Add course</button>
 		
 		</div>
       </div>
@@ -163,6 +170,28 @@ echo $content_text_long; ?></p>
 		$('#collapseOne').on('shown.bs.collapse', function(){
 			$('#collapse-text').text('Show less');
 		});
+	});
+	
+	$("#addButton").click(function(){
+
+		
+		 $.ajax({
+			url: "add_course.php",
+			type: "post",
+			data: {'userid': <?php echo $user_id; ?>, 'courseid': <?php echo $page; ?>},
+			dataType: 'json',
+			success: function(data){
+				 if(data == "1"){
+					window.location = "../adaptive/content.php";
+				}else{
+					console.log(data);
+				}
+		  },
+			error:function(){
+			  console.log("error");
+		  }   
+		}); 
+	
 	});
 	</script>
   </body>

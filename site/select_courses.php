@@ -6,6 +6,9 @@ if (empty($_SESSION['user'])) {
 	die("Redirecting to index.php");
 }
 
+$userID = $_SESSION['user']['id'];
+echo $userID;
+
 // Connect to the db
 
 include 'php/db.php';
@@ -113,7 +116,7 @@ echo $_SESSION['user']['username']; ?></a></li>
 		 $.ajax({
 			url: "completed_courses.php",
 			type: "post",
-			data: {'userid': '1', 'courses': myArr},
+			data: {'userid': <?php echo $userID; ?>, 'courses': myArr},
 			dataType: 'json',
 			success: function(data){
 				 if(data == "1"){
