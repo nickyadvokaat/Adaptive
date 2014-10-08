@@ -241,7 +241,7 @@
 	 */
 	function getCourseSuitability($userID, $courseID){
 		//If the course has been followed already, the suitability is 100%
-		if (completedCourse($userID, $courseID){
+		if (completedCourse($userID, $courseID)){
 			return 100;
 		}
 		
