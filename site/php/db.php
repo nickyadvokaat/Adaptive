@@ -117,4 +117,139 @@
 		
 		return false;
 	}
+	
+	/* New 	*/
+	function markVisited($userID, $courseID){
+		$query = "
+			INSERT IGNORE INTO viewed
+			(user_id, course_id)
+			VALUES 
+		";
+		$query .= "(".$userID.", ".$courseID.")";
+		
+		$result = mysql_query($query);
+		
+		if ($result){
+			return true;
+		}
+		return false;
+	}
+	
+	/**
+	 * Returns whether a user has completed a course or not
+	 */
+	function completedCourse($userID, $courseID){
+		$query = "
+			SELECT * FROM completed
+			WHERE user_id=".$userID." 
+			AND course_id=".$courseID."
+		";
+		
+		$result = mysql_query($query);
+		return (mysql_num_rows($result) > 0);
+	}
+	
+	
+	/**
+	 * Returns a list of ID's for courses which are prerequisites for the given course
+	 * Returns the empty list if there are no prerequisites
+	 */
+	function getPrereqs($courseID){
+		$query = "
+			SELECT id1 FROM prerequisite
+			WHERE id2 = ".$courseID."
+		";
+		$result = mysql_query($query);
+		return mysql_fetch_array($result);
+	}
+	
+	/**
+	 * Returns a list of ID's for courses which are from the same department
+	 * The course with $courseID is not returned
+	 * Returns an empty list if no courses from the same department exist
+	 */
+	function getSameDepartment($courseID){
+		$query = "
+			SELECT department FROM course
+			WHERE course_id = ".$courseID."
+		";
+		$result = mysql_query($query);
+		//Assuming this function is only called on existing courseID's
+		$row = mysql_fetch_array($result);
+		$department = $row['department'];
+		
+		$query2 = "
+			SELECT courseID FROM course
+			WHERE department = ".$department."
+			AND course_id NOT ".$courseID."
+		";
+		$result2 = mysql_query($query2);
+		return mysql_fetch_array($result2);
+	}
+	
+	function isViewed($userID, $courseID){
+		$query = "
+			SELECT * FROM viewed
+			WHERE user_id = ".$userID."
+			AND course_id = ".$courseID."
+		";
+		$result = mysql_query($query);
+		return mysql_num_rows($result > 0);
+	}
+	
+	function isViewedMore($userID, $courseID){
+		$query = "
+			SELECT * FROM viewed_more
+			WHERE user_id = ".$userID."
+			AND course_id = ".$courseID."
+		";
+		$result = mysql_query($query);
+		return mysql_num_rows($result > 0);
+	}
+	
+	/**
+	 * For a given user and course, returns the suitability of the course
+	 * The suitability is a number in the range 0..100
+	 * If a course is already completed, the suitability is 100
+	 * Else, it is (#prereqs/(#prereqs completed))*40+(#siblings/(#siblings completed))*40+viewed*10+viewed_more*10
+	 */
+	function getCourseSuitability($userID, $courseID){
+		//If the course has been followed already, the suitability is 100%
+		if (completedCourse($userID, $courseID){
+			return 100;
+		}
+		
+		
+		$suitability = 0;
+		//Compute score for completed prerequisites
+		$prereqs = getPrereqs($courseID);
+		$nrOfPrereqs = sizeof($prereqs);
+		if ($nrOfPrereqs == 0){
+			$suitability += 40;
+		}
+		else{
+			//Get the prerequisites, and for each prerequisite which has been completed, do $suitability += 40/$nrOfPrereqs;
+		}
+		
+		//Compute score for completed courses of the same department
+		$sameDept = getSameDepartment($courseID);
+		$nrOfSameDept = sizeof($sameDept);
+		if ($nrOfSameDept == 0){
+			$suitability += 40;
+		}
+		else{
+			//Get the courses from the same department, and for each prerequisite which has been completed, do $suitability += 40/$nrOfSameDept;
+		}
+		
+		//Compute score for viewing and viewing more
+		if (isViewed($userID, $courseID)){
+			$suitability += 10;
+		}
+		if (isViewedMore($userID, $courseID)){
+			$suitability += 10;
+		}
+		
+		return $suitability;
+	}
+	/* End new */
 ?>
