@@ -23,10 +23,13 @@ $content_title = "404";
 $content_text = "not found";
 $page = htmlspecialchars($_GET["page"]);
 
+$isCoursePage = false;
+
 if ($page == "") {
-	$content_title = "Welcome";
-	$content_text = "Bla";
+	
 }else if (is_numeric($page)) {
+	$isCoursePage = true;
+
 	$course = getCourse($page);
 	$content_title = $course['name'];
 	$content_text = $course['descr_short'];
@@ -75,9 +78,7 @@ mysql_close($link);
 
     <!-- Custom styles for this template -->
     <link href="css/navbar.css" rel="stylesheet">
-	
-	
-	  </head>
+  </head>
   <body>
 
     <div class="container">
@@ -102,8 +103,7 @@ mysql_close($link);
           </ul>
           <ul class="nav navbar-nav navbar-right">
 		    <?php echo $adminButton; ?>
-            <li><a href="logout.php">Logout <?php
-echo $_SESSION['user']['username']; ?></a></li>
+            <li><a href="logout.php">Logout <?php echo $_SESSION['user']['username']; ?></a></li>
           </ul>
         </div><!--/.nav-collapse -->
         </div><!--/.container-fluid -->
@@ -114,49 +114,48 @@ echo $_SESSION['user']['username']; ?></a></li>
 		<div class="row">
 			<div class="col-md-4">
 			  <div class="list-group">
-				<?php
-echo $content_courses;
-?>
+				<?php echo $content_courses; ?>
 			  </div>
 			</div>
-        <div class="col-md-8">
-		<h1> 
-		<?php
-echo ucwords($content_title);
-?> 
-		</h1>
-		<p> 
-		<?php
-echo $content_text;
-?> 
-				</p>
-				
-	<div class="panel-group" id="accordion">
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <h4 class="panel-title">
-                    <a id="collapse-text" data-toggle="collapse" data-parent="#accordion" href="#collapseOne">Show more</a>
-                </h4>
-            </div>
-            <div id="collapseOne" class="panel-collapse collapse">
-                <div class="panel-body">
-                    <p><?php
-echo $content_text_long; ?></p>
-                </div>
-            </div>
-        </div>       
-    </div>
-	
-	        <button id="addButton" type="button" class="btn btn-info">Add course</button>
-		
+			<div class="col-md-8">		
+				<?php 
+					if($isCoursePage){ 
+						echo '
+							<h1>'. ucwords($content_title) .'</h1>
+							<p>' . $content_text . '</p>					
+					
+							<div class="panel-group" id="accordion">
+								<div class="panel panel-default">
+									<div class="panel-heading">
+										<h4 class="panel-title">
+											<a id="collapse-text" data-toggle="collapse" data-parent="#accordion" href="#collapseOne">Show more</a>
+										</h4>
+									</div>
+									<div id="collapseOne" class="panel-collapse collapse">
+										<div class="panel-body">
+											<p>'. $content_text_long .'</p>
+										</div>
+									</div>
+								</div>       
+							</div>
+					
+							<button id="addButton" type="button" class="btn btn-info">Add course</button>			
+						 ';
+				}else{
+					echo '
+							<h1>Welcome</h1>
+							<p>Select a course on the left to view information about it.</p>
+						 ';			
+				}
+			?>
 		</div>
       </div>
-    </div> <!-- /container -->
+    </div>
 
 	<div class="progress">
         <div class="progress-bar" style="width: 35%">Completed Courses</div>
         <div class="progress-bar progress-bar-info" style="width: 20%">Selected Courses</div>
-      </div>
+    </div>
 
     <!-- Bootstrap core JavaScript
     ================================================== -->
@@ -188,9 +187,7 @@ echo $content_text_long; ?></p>
 		});
 	});
 	
-	$("#addButton").click(function(){
-
-		
+	$("#addButton").click(function(){		
 		 $.ajax({
 			url: "add_course.php",
 			type: "post",
@@ -206,8 +203,7 @@ echo $content_text_long; ?></p>
 			error:function(){
 			  console.log("error");
 		  }   
-		}); 
-	
+		}); 	
 	});
 	</script>
   </body>
