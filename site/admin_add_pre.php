@@ -9,9 +9,10 @@ if (empty($_SESSION['user'])) {
 // Connect to the db
 include 'php/db.php';
 
+$user_id = $_SESSION['user']['id'];
 $username = $_SESSION['user']['username'];
 
-if (userIsAdmin($username)) {
+if (userIsAdmin($user_id)) {
 } else {
 	header("Location: index.php");
 	die("Redirecting to index.php");
