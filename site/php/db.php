@@ -5,6 +5,9 @@
 
 	mysql_select_db('nicky_adaptive') or die('Could not select database');
 
+	/*
+	 * Get name of department given its ID
+	 */
 	function getDepartmentName($department_id){
 		$query = "SELECT * FROM department WHERE id=$department_id";
 		$result = mysql_query($query) or die("Failed" . mysql_error());
@@ -15,6 +18,9 @@
 		return $name;
 	}
 	
+	/*
+	 * Get all information of all courses
+	 */
 	function getCourses(){
 		$query = "SELECT * FROM course ORDER BY name";
 		$result = mysql_query($query) or die("Failed" . mysql_error());
@@ -27,6 +33,9 @@
 		return $courses;
 	}
 	
+	/*
+	 * Get all data of a specific course with given ID
+	 */
 	function getCourse($course_id){
 		$query = "SELECT * FROM course WHERE id=$course_id";
 		$result = mysql_query($query) or die("Failed" . mysql_error());		
@@ -36,8 +45,11 @@
 		return $row;
 	}
 	
-	function userIsAdmin($username){
-		$query = "SELECT admin FROM users WHERE username='$username'";
+	/*
+	 * Check whether user with given ID is an admin
+	 */
+	function userIsAdmin($userID){
+		$query = "SELECT admin FROM users WHERE id='$userID'";
 		$result = mysql_query($query) or die("Failed" . mysql_error());	
 		
 		$row = mysql_fetch_array($result);
@@ -45,6 +57,9 @@
 		return $row['admin'] == 1;
 	}
 	
+	/*
+	 * Add a course to the database
+	 */
 	function addCourse($code, $name, $ects, $descr_short, $descr_long, $department){
 		$query = "INSERT INTO course (code, name, ects, descr_short, descr_long, department)
 			VALUES ('$code', '$name', $ects, '$descr_short', '$descr_long', $department)";
@@ -56,6 +71,10 @@
 		return false;
 	}
 	
+	/*
+	 * Add a prerequisite
+	 * Input 2 course ID's, $from is a prerequisite of $to
+	 */
 	function addPre($from, $to){
 		$query = "INSERT INTO prerequisite (id1, id2)
 			VALUES ('$from', '$to')";
@@ -67,6 +86,9 @@
 		return false;
 	}
 	
+	/*
+	 * List all prerequisites
+	 */
 	function x(){
 		$query = "SELECT c1.name AS course_from, c2.name AS course_to FROM course AS c1, course AS c2, prerequisite WHERE c1.id = prerequisite.id1 AND c2.id = prerequisite.id2";
 		$result = mysql_query($query) or die("Failed" . mysql_error());
@@ -74,12 +96,14 @@
 		$pres = array();
 		while($row = mysql_fetch_array($result)){
 			$pres[] = $row;
-
-			}
+		}
 		
 		return $pres;
 	}
 	
+	/*
+	 * Mark course with $courseID as completed for user with ID $userID
+	 */
 	function addCompletedCourses($userID, $courseIDs){
 		$query = "
 				INSERT IGNORE INTO completed
@@ -99,10 +123,27 @@
 		if($result){
 			return visitedPage($userID);
 		}
-		return false;
-		
+		return false;		
 	}
 	
+	/*
+	 * Add course with ID $courseID to planned courses for user with ID $userID
+	 */
+	function addCourseToPlanned($userID, $courseID){
+		$query = "
+					INSERT IGNORE INTO planned (user_id, course_id)
+					VALUES ('$userID', '$courseID')";
+
+		$result = mysql_query($query);	
+		if($result){
+			return true;
+		}
+		return false;
+	}
+	
+	/*
+	 * The user has visited the main page, used to show the 'select completed courses' page only once
+	 */
 	function visitedPage($userID){
 		$query = "
 				UPDATE users
@@ -118,6 +159,9 @@
 		return false;
 	}
 	
+	/*
+	 * Check whether this is first visit to main page
+	 */
 	function isFirstVisit($userID){
 		$query = "
 				SELECT first_visit
@@ -132,26 +176,33 @@
 		return $row['first_visit'] == 1;		
 	}
 	
-	function addCourseToPlanned($userID, $courseID){
+	/* New 	*/
+	
+	/*
+	 * Mark course with ID $courseID as visited for user with ID $userID
+	 */
+	function viewedCourse($userID, $courseID){
 		$query = "
-					INSERT IGNORE INTO planned (user_id, course_id)
-					VALUES ('$userID', '$courseID')";
-
-		$result = mysql_query($query);	
-		if($result){
+			INSERT IGNORE INTO viewed
+			(user_id, course_id)
+			VALUES ('$userID','$courseID')";
+		
+		$result = mysql_query($query);
+		
+		if ($result){
 			return true;
 		}
 		return false;
 	}
 	
-	/* New 	*/
-	function markVisited($userID, $courseID){
+	/*
+	 * Mark user with ID $userID has opened 'read more' section of page of course with ID $courseID
+	 */
+	function viewedCourseMore($userID, $courseID){
 		$query = "
-			INSERT IGNORE INTO viewed
+			INSERT IGNORE INTO viewed_more
 			(user_id, course_id)
-			VALUES 
-		";
-		$query .= "(".$userID.", ".$courseID.")";
+			VALUES ('$userID', '$courseID')";
 		
 		$result = mysql_query($query);
 		

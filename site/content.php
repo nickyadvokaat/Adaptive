@@ -1,17 +1,19 @@
 <?php
 require ("config.php");
 
+// redirect to index when user is not logged in
 if (empty($_SESSION['user'])) {
 	header("Location: index.php");
 	die("Redirecting to index.php");
 }
 
 // Connect to the db
-
 include 'php/db.php';
 
 $user_id = $_SESSION['user']['id'];
+$username = $_SESSION['user']['username'];
 
+// Show select completed courses page when this is the first visit
 if(isFirstVisit($user_id)){
 	header("Location: select_courses.php");
 	die("Redirecting to select_courses.php");
@@ -24,18 +26,19 @@ $page = htmlspecialchars($_GET["page"]);
 if ($page == "") {
 	$content_title = "Welcome";
 	$content_text = "Bla";
-}
-else
-if (is_numeric($page)) {
+}else if (is_numeric($page)) {
 	$course = getCourse($page);
 	$content_title = $course['name'];
 	$content_text = $course['descr_short'];
 	$content_text_long = $course['descr_long'];
+	
+	// Mark this course page as viewed
+	viewedCourse($user_id, $page);
 }
 
+// Load side bar content
 $content_courses = "";
 $courses = getCourses();
-
 foreach($courses as $course) {
 	$course_id = $course['id'];
 	$course_name = $course['name'];
@@ -43,12 +46,11 @@ foreach($courses as $course) {
 	if ($course_id == $page) {
 		$active = "active";
 	}
-
 	$content_courses.= '<a href="http://www.internetusage.nl/adaptive/content.php?page=' . $course_id . '" class="list-group-item ' . $active . '">' . ucwords($course_name) . '<span class="badge">25</span></a>';
 }
 
-$username = $_SESSION['user']['username'];
-if(userIsAdmin($username)){
+// If the user is Admin, show admin tools menu item
+if(userIsAdmin($user_id)){
 	$adminButton =  "<li class='dropdown'>
 		<a class='dropdown-toggle' data-toggle='dropdown' href='#'>Admin Tools<span class='caret'></span></a>
 		<ul class='dropdown-menu' role='menu'>
@@ -169,6 +171,20 @@ echo $content_text_long; ?></p>
 		});
 		$('#collapseOne').on('shown.bs.collapse', function(){
 			$('#collapse-text').text('Show less');
+			
+			$.ajax({
+				url: "viewed_more.php",
+				type: "post",
+				data: {'userID': <?php echo $user_id; ?>, 'courseID': <?php echo $page; ?>},
+				dataType: 'json',
+				success: function(data){
+					 if(data == "1"){
+					}else{
+					}
+			  },
+				error:function(){
+			  }   
+			}); 
 		});
 	});
 	
