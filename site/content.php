@@ -49,7 +49,7 @@ foreach($courses as $course) {
 	if ($course_id == $page) {
 		$active = "active";
 	}
-	$content_courses.= '<a href="http://www.internetusage.nl/adaptive/content.php?page=' . $course_id . '" class="list-group-item ' . $active . '">' . ucwords($course_name) . '<span class="badge">25</span></a>';
+	$content_courses.= '<a href="http://www.internetusage.nl/adaptive/content.php?page=' . $course_id . '" class="list-group-item ' . $active . '">' . ucwords($course_name) . '<span class="badge">'. getCourseSuitability($user_id,$course_id) .'</span></a>';
 }
 
 // If the user is Admin, show admin tools menu item
