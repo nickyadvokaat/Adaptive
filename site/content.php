@@ -159,8 +159,12 @@ mysql_close($link);
     </div>
 
 	<div class="progress">
-        <div class="progress-bar" style="width: <?php echo $points_completed_fraction; ?>%"></div>
-        <div class="progress-bar progress-bar-info" style="width: <?php echo $points_planned_fraction; ?>%"></div>
+        <div class="progress-bar" style="width: <?php echo $points_completed_fraction; ?>%">
+			<?php if($points_completed > 5){ echo $points_completed;} ?>
+		</div>
+        <div class="progress-bar progress-bar-info" style="width: <?php echo $points_planned_fraction; ?>%">
+			<?php if($points_planned > 5){ echo $points_planned;} ?>
+		</div>
     </div>
 
     <!-- Bootstrap core JavaScript
