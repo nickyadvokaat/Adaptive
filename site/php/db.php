@@ -176,6 +176,38 @@
 		return $row['first_visit'] == 1;		
 	}
 	
+	function getStudyPointsCompleted($userID){
+		$query = "
+				SELECT 	SUM(ects) AS points
+				FROM 	course, completed			
+				WHERE 	completed.user_id='$userID' AND
+						completed.course_id=course.id
+						
+				";			
+
+		$result = mysql_query($query) or die("Failed" . mysql_error());	
+		
+		$row = mysql_fetch_array($result);
+		
+		return $row['points'];		
+	}
+	
+	function getStudyPointsPlanned($userID){
+		$query = "
+				SELECT 	SUM(ects) AS points
+				FROM 	course, planned			
+				WHERE 	planned.user_id='$userID' AND
+						planned.course_id=course.id
+						
+				";			
+
+		$result = mysql_query($query) or die("Failed" . mysql_error());	
+		
+		$row = mysql_fetch_array($result);
+		
+		return $row['points'];		
+	}
+	
 	/* New 	*/
 	
 	/*

@@ -63,6 +63,12 @@ if(userIsAdmin($user_id)){
 		</li>";
 }
 
+$points_completed = intval(getStudyPointsCompleted($user_id));
+$points_completed_fraction = intval(($points_completed * 100) / 180);
+
+$points_planned = intval(getStudyPointsPlanned($user_id));
+$points_planned_fraction = intval(($points_planned * 100) / 180);
+
 mysql_close($link);
 ?>
 <!DOCTYPE html>
@@ -153,8 +159,8 @@ mysql_close($link);
     </div>
 
 	<div class="progress">
-        <div class="progress-bar" style="width: 35%">Completed Courses</div>
-        <div class="progress-bar progress-bar-info" style="width: 20%">Selected Courses</div>
+        <div class="progress-bar" style="width: <?php echo $points_completed_fraction; ?>%"></div>
+        <div class="progress-bar progress-bar-info" style="width: <?php echo $points_planned_fraction; ?>%"></div>
     </div>
 
     <!-- Bootstrap core JavaScript
